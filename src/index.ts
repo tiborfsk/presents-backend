@@ -13,6 +13,10 @@
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World! (Presents)');
+		return new Response('Hello World! (Presents)',
+			{
+				headers: {['Access-Control-Allow-Origin']: 'https://presents-web.onrender.com'}
+			}
+		);
 	},
 } satisfies ExportedHandler<Env>;
