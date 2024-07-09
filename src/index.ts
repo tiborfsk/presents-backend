@@ -11,12 +11,24 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { connect } from "@tidbcloud/serverless";
+import { PrismaTiDBCloud } from "@tidbcloud/prisma-adapter";
+import { PrismaClient } from "@prisma/client";
+
+interface Env {
+  DATABASE_URL: string;
+}
+
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World! (Presents)',
-			{
-				headers: {['Access-Control-Allow-Origin']: 'https://presents-web.onrender.com'}
+		const connection = connect({ url: env.DATABASE_URL })
+		const adapter = new PrismaTiDBCloud(connection)
+		const prisma = new PrismaClient({ adapter })
+		const first = await prisma.present.findFirst()
+		return new Response('Hello World! (Presents) ' + first?.name + '!',
+		{
+			headers: {['Access-Control-Allow-Origin']: 'https://presents-web.onrender.com'}
 			}
-		);
+		)
 	},
 } satisfies ExportedHandler<Env>;
