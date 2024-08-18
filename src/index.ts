@@ -13,7 +13,7 @@
 
 import { connect } from "@tidbcloud/serverless";
 import { PrismaTiDBCloud } from "@tidbcloud/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/client";
 
 interface Env {
   DATABASE_URL: string;
@@ -25,10 +25,13 @@ export default {
 		const adapter = new PrismaTiDBCloud(connection)
 		const prisma = new PrismaClient({ adapter })
 		const first = await prisma.present.findFirst()
-		return new Response('Hello World! (Presents) ' + first?.name + '!',
+		return new Response('Hello World! (Presents v2) ' + first?.name + '!',
 		{
-			headers: {['Access-Control-Allow-Origin']: 'https://presents-web.onrender.com'}
+			headers: {['Access-Control-Allow-Origin']:
+				request.headers.get('Origin')?.includes('presents-web.onrender.com')
+				? 'https://presents-web.onrender.com' :
+				'http://localhost:5173'
 			}
-		)
+		})
 	},
 } satisfies ExportedHandler<Env>;
